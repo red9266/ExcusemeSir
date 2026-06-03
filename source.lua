@@ -1,5 +1,4 @@
 getgenv().AutoF = false
-getgenv().AntiAFK = false
 
 getgenv().AutoCooldown = false
 getgenv().AutoMultiplier = false
@@ -37,9 +36,24 @@ FarmShopTab:CreateToggle({
 
 FarmShopTab:CreateToggle({
    Name = "Enable Anti-AFK",
-   CurrentValue = false,
+   CurrentValue = true,
    Flag = "AntiAFKClicker",
-   Callback = function(Value) getgenv().AntiAFK = Value end,
+   Callback = function(v: boolean)
+        -- quick fix for the old code
+        -- why tf would you not use this instead? doing it outside makes no sense
+        if v then
+            local vu = game:GetService("VirtualUser")
+            shared.Idled = game:GetService("Players").LocalPlayer.Idled:Connect(function()
+                vu:CaptureController()
+                vu:ClickButton2(Vector2.new(0,0))
+            end)
+        else -- now we're able to disconnect it
+            if shared.Idled then
+                shared.Idled:Disconnect();
+                shared.Idled = nil;
+            end
+        end
+    end,
 })
 
 FarmShopTab:CreateSection("Upgrades")
@@ -145,13 +159,6 @@ task.spawn(function()
     end
 end)
 
-local vu = game:GetService("VirtualUser")
-game:GetService("Players").LocalPlayer.Idled:Connect(function()
-    if getgenv().AntiAFK then
-        vu:CaptureController()
-        vu:ClickButton2(Vector2.new(0,0))
-    end
-end)
 
 task.spawn(function()
     while true do

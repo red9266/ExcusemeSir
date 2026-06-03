@@ -10,21 +10,27 @@ getgenv().AutoSilver = false
 getgenv().AutoGolden = false
 getgenv().AutoDiamond = false
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Rayfield cfg --
+getgenv().DISABLE_RAYFIELD_REQUESTS = true
+
+local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua'))() -- https://sirius.menu/rayfield
+
+-- Services -- 
+local Players = cloneref(game:GetService("Players"))
+local LocalPlayer = Players.LocalPlayer
 
 local Window = Rayfield:CreateWindow({
-   Name = "Sonion Hub v3",
-   LoadingTitle = "Sonion Hub",
-   LoadingSubtitle = "Amethyst Edition",
-   ConfigurationSaving = { Enabled = false },
+   Name = "Excuse me Sir v2",
+   LoadingTitle = "Excuse me Sir Script",
+   LoadingSubtitle = "Fork Edition",
+   ConfigurationSaving = { Enabled = true },
    Discord = { Enabled = false },
    KeySystem = false,
-   Theme = "Amethyst",
-   ToggleUIKeybind = Enum.KeyCode.RightShift
+   Theme = "Default",
+   ToggleUIKeybind = Enum.KeyCode.Insert
 })
 
 local FarmShopTab = Window:CreateTab("Farm-Shop", 4483362458)
-
 FarmShopTab:CreateSection("Main")
 
 FarmShopTab:CreateToggle({
@@ -34,8 +40,9 @@ FarmShopTab:CreateToggle({
    Callback = function(Value) getgenv().AutoF = Value end,
 })
 
+--- made by @red 9266, please give credit if you're gonna skid
 FarmShopTab:CreateToggle({
-   Name = "Enable Anti-AFK",
+   Name = "Anti-AFK",
    CurrentValue = true,
    Flag = "AntiAFKClicker",
    Callback = function(v: boolean)
@@ -43,7 +50,7 @@ FarmShopTab:CreateToggle({
         -- why tf would you not use this instead? doing it outside makes no sense
         if v then
             local vu = game:GetService("VirtualUser")
-            shared.Idled = game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            shared.Idled = LocalPlayer.Idled:Connect(function()
                 vu:CaptureController()
                 vu:ClickButton2(Vector2.new(0,0))
             end)
@@ -129,9 +136,8 @@ end
 
 task.spawn(function()
     while true do
-        local player = game:GetService("Players").LocalPlayer
-        if player and player:FindFirstChild("PlayerGui") then
-            for _, obj in ipairs(player.PlayerGui:GetDescendants()) do
+        if LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") then
+            for _, obj in ipairs(LocalPlayer.PlayerGui:GetDescendants()) do
                 if obj:IsA("TextLabel") or obj:IsA("TextButton") then
                     local text = string.lower(obj.Text)
                     
@@ -176,8 +182,10 @@ task.spawn(function()
                         elseif string.lower(obj.Name) == "f" then
                             isFButton = true
                         end
-                        
+
                         if isFButton then
+                            -- print('')
+
                             for _, conn in ipairs(getconnections(obj.MouseButton1Click)) do conn:Fire() end
                             for _, conn in ipairs(getconnections(obj.MouseButton1Down)) do conn:Fire() end
                             for _, conn in ipairs(getconnections(obj.Activated)) do conn:Fire() end
@@ -189,5 +197,15 @@ task.spawn(function()
         task.wait(0.5)
     end
 end)
+
+local VisualsTab = Window:CreateTab("Visuals", 'eye')
+VisualsTab:CreateToggle({
+   Name = "Remove Donation Button",
+   CurrentValue = true,
+   Flag = "AntislopButton",
+   Callback = function(v: boolean)
+        LocalPlayer:FindFirstChild('PlayerGui'):FindFirstChild('Donate').Enabled = v -- game:GetService("Players").LocalPlayer.PlayerGui.Donate
+    end,
+})
 
 Rayfield:LoadConfiguration()
